@@ -1,6 +1,12 @@
+'''
+human: 15: (192,128,128)
+'''
+
+
 from PIL import Image
 import numpy as np
 import tensorflow as tf
+from numba import jit
 
 # colour map
 label_colours = [(0,0,0)
@@ -14,7 +20,32 @@ label_colours = [(0,0,0)
                 ,(0,64,0),(128,64,0),(0,192,0),(128,192,0),(0,64,128)]
                 # 16=potted plant, 17=sheep, 18=sofa, 19=train, 20=tv/monitor
 
-def decode_labels(mask, num_images=1, num_classes=21):
+@jit
+def decode_labels(mask, num_classes=21):
+    """Decode batch of segmentation masks.
+    Args:
+      mask: result of inference after taking argmax.
+      num_classes: number of classes to predict (including background).
+    
+    Returns:
+      A batch with num_images RGB images of the same size as the input. 
+    """
+    
+    assert( len(mask.shape)>= 2), 'Batch size should be 1'
+    h, w= mask.shape
+    output = np.zeros((h, w, 3), dtype=np.uint8)
+    #for j_, j in enumerate(mask[:, :, 0]):
+    #    for k_, k in enumerate(j):
+    #        if k < num_classes:
+    #            output[k_,j_] = label_colours[k]
+    for j in range(h):
+      for i in range(w):
+        output[j,i] = label_colours[mask[j,i]]
+    return output
+
+
+
+def decode_labels_(mask, num_images=1, num_classes=21):
     """Decode batch of segmentation masks.
     
     Args:
