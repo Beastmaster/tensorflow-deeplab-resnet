@@ -76,7 +76,7 @@ def bgr_demean(img):
     '''
     nimage = np.zeros_like(img,dtype=np.float32)
     img.astype(np.float32)
-    img = img[..., [2,0,1]]
+    img = img[..., [2,1,0]]
     return img
 
 
